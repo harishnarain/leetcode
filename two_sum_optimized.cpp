@@ -5,11 +5,6 @@ using namespace std;
 
 vector<int> twoSum(vector<int> &nums, int target)
 {
-    // Iterate through each element i
-    // Iterate through each element after j
-    // Check if sum matches target
-    // return i and j
-
     unordered_map<int, bool> map;
 
     for (int i = 0; i < nums.size(); i++)
