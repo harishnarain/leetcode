@@ -3,95 +3,42 @@
 #include <math.h>
 using namespace std;
 
-bool validChar(char c)
-{
-    // convert to char to int
-    int convertedToAscii = (int)c;
-    if (convertedToAscii == 45 || convertedToAscii == 43)
-        return true;
-    if (convertedToAscii >= 48 && convertedToAscii <= 57)
-        return true;
-
-    return false;
-}
-
 int myAtoi(string s)
 {
-    int left = 0;
-    int right = 0;
-    string intSubstring = "";
-
     // Check if string is null
-    if (s.empty() || s.length() < 1)
+    if (s.length() == 0)
         return 0;
 
-    // Check for leading non-digit, non-whitespace or non-negative
-    if (!validChar(s[0]) && s[0] != ' ')
-        return 0;
+    // Initialize left cursor
+    int left = 0;
 
-    // Remove leading zeros or negatives with zeros
-    while (s.length() > 1 && s[left] == '0' || s[left] == '-' && s[left + 1] == '0')
+    // Trim whitespace
+    while (s[left] == ' ')
         left++;
 
-    // Determine start of int substring
-    while (!validChar(s[left]))
-        left++;
-
-    // Determine length of int substring
-    right = left;
-    while (validChar(s[right]))
-        right++;
-    int intSubstringLength = right - left;
-
-    // Generate int substring
-    intSubstring = s.substr(left, intSubstringLength);
-
-    // Check for subsequent positives or negatives
-    if ((intSubstring[0] == '-' || intSubstring[0] == '+') && (intSubstring[1] == '-' || intSubstring[1] == '+'))
-        return 0;
-
-    // Keep record of negative or positive and remove from int substring
+    // Keep record of negative or positive and advance left cursor
     bool negative = false;
-    if (intSubstring[0] == '-')
-    {
-        negative = true;
-        intSubstring = intSubstring.replace(0, 1, "");
-    }
-
-    if (intSubstring[0] == '+')
-    {
-        intSubstring = intSubstring.replace(0, 1, "");
-    }
+    if (s[left] == '-')
+        negative = true, left++;
+    else if (s[left] == '+')
+        left++;
 
     // Generate result int from int substring
-    int result = 0;
-    for (int i = intSubstring.length() - 1; i >= 0; i--)
+    double result = 0;
+    while ((s[left] >= 48 && s[left] <= 57) && (left < s.length()))
     {
-        if ((result + (intSubstring[i] - 48) * pow(10, (intSubstring.length() - (i + 1)))) > INT_MAX)
-        {
-            if (negative)
-            {
-                result = abs(INT_MIN);
-            }
-            else
-            {
-                result = INT_MAX;
-            }
-            break;
-        }
-        else
-        {
-            result += ((intSubstring[i] - 48) * pow(10, (intSubstring.length() - (i + 1))));
-        }
+        result *= 10;
+        result += s[left] - 48;
+        if (result >= pow(2, 31) && negative)
+            return INT_MIN;
+        if (result >= INT_MAX && !negative)
+            return INT_MAX;
+        left++;
     }
 
-    // Apply negative if applicable
-    if (negative)
-    {
-        result = -abs(result);
-    }
-
-    return result;
+    if (!result)
+        return 0;
+    return negative ? result * -1 : result;
 }
 
 int main()
@@ -113,5 +60,6 @@ int main()
     cout << myAtoi("--12") << '\n';
     cout << myAtoi("000-000-12") << '\n';
     cout << myAtoi("00000-42a1234") << '\n';
+    cout << myAtoi("-2147483647") << '\n';
     return 0;
 }
